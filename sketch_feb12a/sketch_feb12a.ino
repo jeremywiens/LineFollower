@@ -1,37 +1,49 @@
-//void setup()
-//{
-//    Serial.begin(9600);
-//}
-//
-//void loop()
-//{
-//    delay(1000);
-//
-//    pinMode(3, OUTPUT);
-//    digitalWrite(3, HIGH);
-//    delay(1000);
-//
-//    // pinMode(3, INPUT); // get rid of this line
-//    Serial.println(digitalRead(3));
-//}
+#define lmf 9 // left motor front,
+#define rmf 11 
+#define lmb 10 
+#define rmb 12
+//#define loutside 12
+//#define left 11
+//#define center 10
+//#define right 9
+//#define routside 8
 
-const int IN_A5 = A5;
-const int IN_D7 = 7;
-void setup()
-{
-  Serial.begin(9600);
-  pinMode(IN_A5, INPUT);      // sets the digital pin 13 as output
-  pinMode(IN_D7, INPUT);        // sets the digital pin 7 as input
+
+void setup() {
+pinMode(lmf,OUTPUT);
+pinMode(rmf,OUTPUT);
+pinMode(lmb,OUTPUT);
+pinMode(rmb,OUTPUT);
+//pinMode(loutside, INPUT);
+//pinMode(left, INPUT);
+//pinMode(center, INPUT);
+//pinMode(right, INPUT);
+//pinMode(routside, INPUT);
+
+
 }
 
-int value_A5;
-bool value_D7;
+void loop() {
+digitalWrite(lmf, HIGH);
+digitalWrite(rmf, HIGH);
+digitalWrite(lmb, LOW);
+digitalWrite(rmb, LOW);
 
-void loop()
-{
-  value_A5 = analogRead(IN_A5);
-  value_D7 = digitalRead(IN_D7);
-  Serial.println(value_A5);
-  Serial.println(value_D7);
-  delay(1000);
+delay(1000);
+
+digitalWrite(lmf, LOW);
+digitalWrite(rmf, LOW);
+digitalWrite(lmb, HIGH);
+digitalWrite(rmb, HIGH);
+
+delay(1000);
+
+digitalWrite(lmb, HIGH);
+digitalWrite(rmf, LOW);
+digitalWrite(lmf, LOW);
+digitalWrite(rmb, LOW);
+
+delay(1000);
+
 }
+
