@@ -25,8 +25,6 @@ void setup() {
     Serial.begin(9600);
     pinMode(right_f, OUTPUT);
     pinMode(right_b, OUTPUT);
-
-
     pinMode(left_f, OUTPUT);
     pinMode(left_b, OUTPUT);
     
@@ -40,12 +38,16 @@ void Forward(){
     analogWrite (en_R,150); 
     digitalWrite(left_f, HIGH);
     digitalWrite(right_f, HIGH);
+    digitalWrite(left_b, LOW);
+    digitalWrite(right_b, LOW);
 }
 void HardLeft(){
     analogWrite (en_L,150); 
-    analogWrite (en_R,150); 
-    digitalWrite(left_b, HIGH);
-    digitalWrite(right_f, HIGH);
+    analogWrite (en_R,150);
+    digitalWrite(left_f, LOW);
+    digitalWrite(right_f, HIGH); 
+    digitalWrite(left_b, LOW);
+    digitalWrite(right_b, LOW);
 }
 
 void Stop(){
@@ -58,6 +60,8 @@ void Stop(){
 void Back(){    
   analogWrite (en_L,150); 
     analogWrite (en_R,150); 
+    digitalWrite(left_f, LOW);
+    digitalWrite(right_f, LOW);
     digitalWrite(left_b, HIGH);
     digitalWrite(right_b, HIGH);
 
@@ -66,19 +70,25 @@ void HardRight(){
     analogWrite (en_L,150); 
     analogWrite (en_R,150); 
     digitalWrite(left_f, HIGH);
-    digitalWrite(right_b, HIGH);
+    digitalWrite(right_f, LOW);
+    digitalWrite(left_b, LOW);
+    digitalWrite(right_b, LOW);
 }
 void SightLeft(){      
-    analogWrite (en_L,150); 
+    analogWrite (en_L,75); 
     analogWrite (en_R,150); 
-    digitalWrite(left_f, LOW);
-    digitalWrite(right_f, HIGH);
+    digitalWrite(left_f, HIGH);
+    digitalWrite(right_f, HIGH);    
+    digitalWrite(left_b, LOW);
+    digitalWrite(right_b, LOW);
     }
 void SlightRight(){
     analogWrite (en_L,150); 
-    analogWrite (en_R,150); 
+    analogWrite (en_R,75); 
     digitalWrite(left_f, HIGH);
-    digitalWrite(right_f, LOW);
+    digitalWrite(right_f, HIGH);
+    digitalWrite(left_b, LOW);
+    digitalWrite(right_b, LOW);
     }
 
 void loop (){
@@ -135,4 +145,3 @@ void loop (){
         break;
 
     }}
-
