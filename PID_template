@@ -1,0 +1,230 @@
+#define en_L 10
+#define en_R  11 //define the enable pins to motor driver
+
+#define left_f 8 //define motor inputs
+#define left_b 9
+
+#define right_f 12
+#define right_b 13
+
+#define MUCH_LEFT  3//define digital read pins
+#define LEFT  4
+#define CENTER  5
+#define RIGHT 6
+#define MUCH_RIGHT  2
+
+int m_left = 0;
+int left = 0;
+int center = 0;
+int right = 0;
+int m_right = 0;
+
+
+
+#define S_HIGH 900  //analog readings above 900 if line detected 
+//digital readings will be HIGH
+#define S_LOW 50  // analog readings below 50 if no line is detected
+// digital readings will be LOW
+
+
+//PID variables
+float Kp = 20 , Ki = 0.1, Kd = 30;
+float error = 0, P = 0, I = 0, D = 0, PID_value = 0;
+float previous_error = 0, previous_I = 0;
+
+int initial_motor_speed = 100;
+
+//PID functions
+void read_sensor_values(void);
+void calculate_pid(void);
+void motor_control(void);
+
+//--------------------------------------------------------
+void setup() {
+
+  Serial.begin(9600);
+
+  pinMode(right_f, OUTPUT);
+  pinMode(right_b, OUTPUT);
+  pinMode(left_f, OUTPUT);
+  pinMode(left_b, OUTPUT);
+
+  pinMode(en_L, OUTPUT);
+  pinMode(en_R, OUTPUT);
+}
+
+void loop() {
+
+  read_sensor_values();
+  calculate_pid();
+  motor_control();
+}
+
+//--------------------------------------------------------
+
+void read_sensor_values() {
+
+  m_left = digitalRead(MUCH_LEFT);
+  left = digitalRead(LEFT);
+  center = digitalRead(CENTER);
+  right = digitalRead(RIGHT);
+  m_right = digitalRead(MUCH_RIGHT);
+
+  //concating sensor readings together
+  int readings = m_left * 10 ^ 4 + left * 10 ^ 3 + center * 10 ^ 2 + right * 10 + m_right;
+
+
+
+  Serial.print("\n");
+  Serial.print(m_left);
+  Serial.print("\t");
+  Serial.print(left);
+  Serial.print("\t");
+  Serial.print(center);
+  Serial.print("\t");
+  Serial.print(right);
+  Serial.print("\t");
+  Serial.print(m_right);
+  Serial.print("\n");
+  Serial.print(readings);
+
+
+
+  //negative PID_value <-- left motor speed increase, right motor speed decrease
+  //positive PID_value <-- right motor speed increase, left motor speed decrease
+
+  if ( (m_left == 0) && (left == 0) && (center == 0) && (right == 0) && (m_right == 1) )
+
+    error = 4;
+
+  else if ( (m_left == 0) && (left == 0) && (center == 0) && (right == 1) && (m_right == 1) )
+
+    error = 3;
+
+  else if ( (m_left == 0) && (left == 0) && (center == 0) && (right == 1) && (m_right == 0) )
+
+    error = 2;
+
+  else if ( (m_left == 0) && (left == 0) && (center == 1) && (right == 1) && (m_right == 0) )
+
+    error = 1;
+
+  else if ( (m_left == 0) && (left == 0) && (center == 1) && (right == 0) && (m_right == 0) )
+
+    error = 0;
+
+  else if ( (m_left == 0) && (left == 1) && (center == 1) && (right == 0) && (m_right == 0) )
+
+    error = -1;
+
+  else if ( (m_left == 0) && (left == 1) && (center == 0) && (right == 0) && (m_right == 0) )
+
+    error = -2;
+
+  else if ( (m_left == 1) && (left == 1) && (center == 0) && (right == 0) && (m_right == 0) )
+
+    error = -3;
+
+  else if ( (m_left == 1) && (left == 0) && (center == 0) && (right == 0) && (m_right == 0) )
+
+    error = -4;
+
+//  else if ( (m_left == 0) && (left == 0) && (center == 0) && (right == 0) && (m_right == 0) )
+//
+//    error = -5;
+
+
+  //  switch (readings) {
+  //
+  //    case 00001:
+  //      error = 4;
+  //      break;
+  //
+  //    case 00011:
+  //      error = 3;
+  //      break;
+  //
+  //    case 00010:
+  //      error = 2;
+  //      break;
+  //
+  //    case 00110:
+  //      error = 1;
+  //      break;
+  //
+  //    case 00100:
+  //      error = 0;
+  //      break;
+  //
+  //    case 01100:
+  //      error = -1;
+  //      break;
+  //
+  //    case 01000:
+  //      error = -2;
+  //      break;
+  //
+  //    case 11000:
+  //      error = -3;
+  //      break;
+  //
+  //    case 10000:
+  //      error = -4;
+  //      break;
+  //
+  //    case 00000:
+  //      error = -5;
+  //      break;
+  //  }
+}
+
+void calculate_pid() {
+
+  P = error;
+  I = I + error;
+  D = error - previous_error;
+
+  Serial.print(P);
+  Serial.print("\t");
+  Serial.print(Kp);
+  Serial.print("\t");
+  Serial.print(D);
+  Serial.print("\t");
+  Serial.print(Kd);
+  Serial.print("\n");
+  Serial.print(PID_value);
+  
+
+  PID_value = (Kp * P) + (Ki * I) + (Kd * D);
+
+  previous_error = error;
+}
+ 
+void motor_control() {
+
+  // Calculating the effective motor speed:
+  int left_motor_speed = initial_motor_speed + PID_value;
+  int right_motor_speed = initial_motor_speed - PID_value;
+
+  // motor speeds should not exceed the max PWN value
+  if (left_motor_speed > initial_motor_speed + 10) 
+      left_motor_speed = initial_motor_speed + 10;
+  else if (left_motor_speed < 0)
+      left_motor_speed = 0;
+      
+  if (right_motor_speed > initial_motor_speed + 10)
+      right_motor_speed = initial_motor_speed + 10;
+  else if (right_motor_speed < 0)
+      right_motor_speed = 0;
+
+  //give motor its speed
+  analogWrite(en_L, left_motor_speed); //left
+  analogWrite(en_R, right_motor_speed); //right
+
+  //output servo motors
+  digitalWrite(left_f, HIGH);
+  digitalWrite(left_b, LOW);
+  digitalWrite(right_f, HIGH);
+  digitalWrite(right_b, LOW);
+}
+
